@@ -1,4 +1,5 @@
 from pagerank import generate_random_graph, generate_graph, pageRank, initTransitionsMatrix, powerMethod
+from pagerank_sparse import pageRank_sparse
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -9,27 +10,28 @@ import math
 Analyse du ritme de convergence et de la réduction de l'erreur à chaque itération
 de la méthode de la puissance.
 
-Montre que même si les variations entre les valeurs du vecteur propre ncontinuent à
+Montre que même si les variations entre les valeurs du vecteur propre continuent à
 descendre (le vecteur propre n'a pas encore convergé), l'erreur entre le vrai
 vecteur propre et celui approximé converge bien avant et ne continue pas à diminuer
 avec des variations très petites. Pour cette raison, le seuil de tolérance de 1e-6
 pour accepter la convergence est accepté.
+On fait la convergence par rapport au vecteur propre et non à la valeur propre
+puisque la convergence du vecteur propre est plus rapide et c'est celle qui nous 
+intéresse. Lorsqu'on fait la convergence avec la valeur propre, le résultat est
+le même.
 """
 def powerMethod_Analysis1(transitionsMatrix, iterations=50, tolerance=1e-6):
     P = transitionsMatrix
     dim = len(P)
     pi = np.ones(dim) * 1/dim
-    real_pi = np.array([0.03721, 0.05396, 0.04151, 0.3751, 0.206, 0.2862]) 
-    # eignenvalue = 0
-
+    real_pi = np.array([12,16,9,1,3]) * (1/41)
+    print(real_pi)
     errors = []  # Erreur à chaque itération
     variations = []  # Variation entre chaque itération
     values = [[] for _ in range(dim)]  # Valeur de chaque composante de pi à chaque itération
 
     for _ in range(iterations):
         pi_next = pi @ P
-
-        # eignenvalue_next = (pi.T @ P @ pi) / (pi.T @ pi) 
 
         variation = np.linalg.norm(pi_next - pi)
         variations.append(variation)
@@ -44,8 +46,7 @@ def powerMethod_Analysis1(transitionsMatrix, iterations=50, tolerance=1e-6):
             break
 
         pi = pi_next
-        # eignenvalue = eignenvalue_next
-
+    
     return pi, errors, variations, values
 
 def pageRank_Analysis1(graph, dampingFactor):
@@ -54,30 +55,31 @@ def pageRank_Analysis1(graph, dampingFactor):
     eeT = np.ones((dim, dim)) * 1/dim
     P = dampingFactor * transitionsMatrix + (1-dampingFactor) * eeT
     pi, errors, variations, _ = powerMethod_Analysis1(P, iterations=100, tolerance=0)
+    print(pi)
     return pi, errors, variations
 
 
-www = {"1": [2,3], "2": [], "3": [1,2,5], "4": [5,6], "5": [4,6], "6":[4]}
-iterations = 50
+# www = {"1": [2,3], "2": [], "3": [1,2,5], "4": [5,6], "5": [4,6], "6":[4]}
+www = {"1": [2], "2": [1,3], "3": [1,2,5], "4": [1], "5": [2,4,3]}
 damping = 0.9
 pi, errors, variations = pageRank_Analysis1(www, damping)
 
 def chart1():
     plt.figure(figsize=(8, 5))
-    plt.plot(errors, linestyle='-', color='b')
+    plt.plot(errors, linestyle='-', color='orangered')
     plt.yscale('log')  # Using log scale to better visualize error decay
-    plt.title('Convergence of Power Method - Error vs. Iterations')
-    plt.xlabel('Iteration')
-    plt.ylabel('Error (Log Scale)')
+    plt.title('Erreur entre le vrai vecteur propre et celui calculé par la méthode de la puissance')
+    plt.xlabel('Itération')
+    plt.ylabel('Erreur')
     plt.grid(True)
     plt.show()
 
 def chart2():
     plt.figure(figsize=(8, 5))
-    plt.plot(variations, linestyle='-', color='r')
+    plt.plot(variations, linestyle='-', color='royalblue')
     plt.yscale('log')  # Using log scale to better visualize error decay
-    plt.title('Convergence of Power Method - Variation vs. Iterations')
-    plt.xlabel('Iteration')
+    plt.title("Variations entre le vecteur propre actuel et celui de l'itération précédente")
+    plt.xlabel('Itération')
     plt.ylabel('Variation')
     plt.grid(True)
     plt.show()
@@ -112,18 +114,22 @@ def chart3():
 
 
 """
-Temps d'exécution de PageRank en fonction du nombre de noeuds, 
+Temps d'exécution de PageRank (base) en fonction du nombre de noeuds, 
 ce qui revient à la taille du graphe car les liens augmentent 
 aussi au fûr et à mesure que le nombre de noeuds augmente.
+
+Montre que la complexité est exponentielle par rapport au nombre de noeuds
+à cause de la multiplication matricielle qui est faite en O(N^2).
 """
 
 def chart4():
     pageRankTime = []
     num_nodes = []
 
-    for i in range(5, 1000, 10):
+    for i in range(100, 1500, 10):
+        print(i)
         num_nodes.append(i)
-        graph = generate_graph(i, min(10, math.ceil(i/2)))
+        graph = generate_graph(i, 10)
         pageRank_start = time.time()
         pageRank(graph)
         pageRank_end = time.time()
@@ -131,16 +137,19 @@ def chart4():
         pageRankTime.append(total_time)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(num_nodes, pageRankTime, linestyle='-', color='y')
-    plt.title('Time complexity PageRank - Nodes')
-    plt.xlabel('Number of nodes')
-    plt.ylabel('Time')
+    plt.plot(num_nodes, pageRankTime, linestyle='-', color='royalblue')
+    plt.title('Complexité de PageRank en fonction du nombre de noeuds')
+    plt.xlabel('Nombre de noeuds')
+    plt.ylabel('Temps (sec)')
     plt.grid(True)
     plt.show()
 
 
 """
 Temps d'exécution de pagerank en fonction du nombre de liens (arrêtes du graphe).
+
+Montre que la complexité est linéaire par rapport à la densité (nombre d'arrêtes)
+du graphe.
 """
 
 def chart5():
@@ -156,17 +165,20 @@ def chart5():
         pageRank_end = time.time()
         total_time = (pageRank_end - pageRank_start)/5
         pageRankTime.append(total_time)
+    
     plt.figure(figsize=(8, 5))
-    plt.plot(num_edges, pageRankTime, linestyle='-', color='y')
-    plt.title('Time complexity PageRank - Edges')
-    plt.xlabel('Number of Edges')
-    plt.ylabel('Time')
+    plt.plot(num_edges, pageRankTime, linestyle='-', color='royalblue')
+    plt.title("Complexité de PageRank en fonction du nombre d'arêtes'")
+    plt.xlabel("Nombre d'arêtes")
+    plt.ylabel('Temps (sec)')
     plt.grid(True)
     plt.show()
 
 
 """
-Temps d'exécution de Power Method en fonction de la dimension de la matrice.
+Temps d'exécution de Power Method en fonction de la dimension de la matrice.ç
+
+Explique la complexité de PageRank --> O(N^2)
 """
 
 def pageRank_Analysis3(graph, dampingFactor=0.85):
@@ -192,10 +204,10 @@ def chart6():
         powerMethodTime.append(total_time)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(num_nodes, powerMethodTime, linestyle='-', color='y')
-    plt.title('Time complexity Power Method - Nodes')
-    plt.xlabel('Number of nodes')
-    plt.ylabel('Time')
+    plt.plot(num_nodes, powerMethodTime, linestyle='-', color='royalblue')
+    plt.title('Complexité de la méthode de la puissance en fonction du nombre de noeuds')
+    plt.xlabel('Nombre de noeuds')
+    plt.ylabel('Temps (sec)')
     plt.grid(True)
     plt.show()
 
@@ -237,11 +249,11 @@ def chart7():
         convergence_iters.append(convergence_iter)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(num_nodes, convergence_iters, linestyle='-', color='y')
-    plt.title('Convergence rate Power Method - Nodes')
-    plt.xlabel('Number of nodes')
+    plt.plot(num_nodes, convergence_iters, linestyle='-', color='royalblue')
+    plt.title('Itération de convergence de la méthode de la puissance en fonction du nombre de noeuds')
+    plt.xlabel('Nombre de noeuds')
     plt.ylim(0, 15)
-    plt.ylabel('Iteration')
+    plt.ylabel('Itération')
     plt.grid(True)
     plt.show()
 
@@ -250,7 +262,7 @@ def chart7():
 """
 Taux de convergence de Power Method en fonction du damping factor.
 
-Montre que le taux de convergence est dépendant ddu damping factor.
+Montre que le taux de convergence est dépendant du damping factor.
 """
 
 def chart8():
@@ -265,13 +277,51 @@ def chart8():
         convergence_iters.append(convergence_iter)
 
     plt.figure(figsize=(8, 5))
-    plt.plot(dampingFactors, convergence_iters, linestyle='-', color='y')
-    plt.title('Convergence rate - Damping')
-    plt.ylabel('Iteration')
-    plt.xlabel('Damping')
+    plt.plot(dampingFactors, convergence_iters, linestyle='-', color='royalblue')
+    plt.title("Itération de convergence de la méthode de la puissance en fonction du facteur d'amortissement")
+    plt.ylabel('Itération')
+    plt.xlabel("Facteur d'amortissement")
     plt.grid(True)
     plt.show()
 
+
+
+"""
+Temps d'excécution de PageRank avec l'optimisation de la méthode utilisée
+pour faire la multiplication matricielle en temps linéaire lorsque il y a plus 
+d'éléments nuls que d'éléments non nuls dans la matrice de transition.
+
+La complexité de PageRank devient O(k * (N + E)) mais juste pour ce type de matrices.
+Pour un graphe plus dense, cette méthode est 4 fois plus lente que la méthode 
+de base. Pour le web est mieux.
+"""
+def chart9():
+    pageRankTime = []
+    num_nodes = []
+
+    for i in range(100, 2500, 10):
+        print(i)
+        graph = generate_graph(i, 10)
+        start = time.time()
+        for _ in range(1):
+            pageRank_sparse(graph)
+        end = time.time()
+        total_time = (end - start)/1
+        num_nodes.append(i)
+        pageRankTime.append(total_time)
+
+    def moving_average(data, window_size=5):
+        return np.convolve(data, np.ones(window_size)/window_size, mode='valid')
+
+    smoothed_times = moving_average(pageRankTime, window_size=10)
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(num_nodes[:len(smoothed_times)], smoothed_times, linestyle='-', color='royalblue')
+    plt.title('Complexité de PageRank - Matrices creuses')
+    plt.xlabel('Nombre de noeuds')
+    plt.ylabel('Temps (sec)')
+    plt.grid(True)
+    plt.show()
 
 ## GÉNÉRATION DES GRAPHIQUES ##
 
@@ -283,3 +333,4 @@ def chart8():
 # chart6()
 # chart7()
 # chart8()
+# chart9()

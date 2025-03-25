@@ -3,6 +3,11 @@ import random
 
 
 """
+Complexité: O(k * (N^2 + E))
+"""
+
+
+"""
 Génération de la matrice des probabilités de transition d'un graphe donné.
 La matrice retournée est stochastique.
 
@@ -81,14 +86,12 @@ def powerMethod(transitionsMatrix, iterations=50, tolerance=1e-6):
     
     for _ in range(iterations):
         pi_next = pi @ P  # Nouveau vecteur calculé (vecteur propre)
-        # lam_next = (pi.T @ P @ pi) / (pi.T @ pi) 
 
         # Vérification de varialition significative (convergence) du vecteur propre.
         if np.linalg.norm(pi_next - pi) < tolerance:
             break
 
-        pi = pi_next
-        # lam = lam_next
+        pi = pi_next  # Actualisation du vecteur des probabilités d'équilibre
 
     return pi
 
@@ -108,10 +111,14 @@ def pageRank(graph, dampingFactor=0.85):
 
     # Rendre irréductible la matrice des probabilités de transition
     P = dampingFactor * transitionsMatrix + (1-dampingFactor) * eeT
+    print(P)
 
     # Calcul du vecteur des probabilités d'équilibre (stationnaires)
     pi = powerMethod(P, iterations=50, tolerance=1e-6)
 
-    print(pi.flatten())
-    print(pi.sum())
+    print("PageRank:", pi)
+    print("Sum:", pi.sum())
     return pi
+
+# graphExample = {"1": [2,3], "2": [3,4,5], "3": [1,2], "4": [3], "5": []}
+# pageRank(www, dampingFactor=0.85)
