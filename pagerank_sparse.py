@@ -1,7 +1,4 @@
-from pagerank import generate_graph
 import numpy as np
-import matplotlib.pyplot as plt
-import time
 
 """
 Complexité: O(k * (N + E)) juste pour des matrices creuses.
