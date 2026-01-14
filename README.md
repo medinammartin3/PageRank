@@ -2,7 +2,7 @@
 
 Implementation and analysis of the PageRank algorithm in Python. This repository includes  both a standard implementation and a sparse-matrix optimized version.
 
----
+
 
 ## Background & Algorithm 
 
@@ -11,7 +11,7 @@ Pages that are linked to by many “important” pages receive a high rank score
 
 The score distribution represents a stationary distribution of a Markov chain where transitions follow outgoing links with a damping factor.
 
---- 
+
 
 ## Project Structure 
 
@@ -24,7 +24,7 @@ The score distribution represents a stationary distribution of a Markov chain wh
 └── requirements.txt    # Python dependencies 
  ``` 
 
---- 
+
 
 ## Features
 
@@ -33,9 +33,9 @@ The score distribution represents a stationary distribution of a Markov chain wh
 > [!NOTE]
 > $n$ is the number of nodes (pages) and $E$ is the number of edges (links) in the graph.
 - Visualization tools in `charts.py` for plotting rankings and convergence
-- Support for damping factor customization 
+- Support for damping factor customization
 
---- 
+
 
 ## Installation & Setup 
 1. **Clone the repository** 
@@ -48,9 +48,9 @@ cd PageRank
 2. **Install dependencies** 
 ```bash 
 pip install -r requirements.txt 
-``` 
+```
 
---- 
+
 
 ## Usage Examples 
 
