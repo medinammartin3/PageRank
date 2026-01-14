@@ -16,7 +16,7 @@ Paramètres:
 """
 def initTransitionsMatrix(graph):
     dim = len(graph)  # Nombre de noeuds (pages web)
-    matrix = np.zeros((dim, dim), dtype=np.float128)  # Matrice des probabilités de transition
+    matrix = np.zeros((dim, dim), dtype=np.float64)  # Matrice des probabilités de transition
 
     for i in range(len(graph)):
         links = graph[str(i+1)]  # Liens sortant de la page
