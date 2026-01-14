@@ -28,10 +28,11 @@ The score distribution represents a stationary distribution of a Markov chain wh
 
 ## Features
 
-- Standard PageRank using dense adjacency structures. Complexity : $\mathcal{O}(n^2 + E)$.
-- Sparse PageRank for efficiency on large graphs. Complexity : $\mathcal{O}(n + E)$
 > [!NOTE]
 > $n$ is the number of nodes (pages) and $E$ is the number of edges (links) in the graph.
+
+- Standard PageRank using dense adjacency structures. Complexity : $\mathcal{O}(n^2 + E)$.
+- Sparse PageRank for efficiency on large graphs. Complexity : $\mathcal{O}(n + E)$
 - Visualization tools in `charts.py` for plotting rankings and convergence
 - Support for damping factor customization
 
