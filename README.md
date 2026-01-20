@@ -18,7 +18,8 @@ The score distribution represents a stationary distribution of a Markov chain wh
 ```text
 ├── pagerank.py         # Core PageRank implementation (dense matrix) 
 ├── pagerank_sparse.py  # Sparse matrix PageRank for large graphs 
-├── charts.py           # Plotting utilities for results and convergence 
+├── charts.py           # Plotting utilities for results and convergence
+├── paper.pdf           # Technical analysis of PageRank's computational complexity
 ├── README.md           # Project overview and instructions 
 ├── .gitignore          # Files and folders to ignore in Git 
 └── requirements.txt    # Python dependencies 
